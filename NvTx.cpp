@@ -54,7 +54,7 @@ static int8_t nv_tx_validate_cell(
 	return head & EPOCH;
 invalid:
 	// Clear valid bit should head or tail checksum mismatch
-	// So we can skip checksum verification in subsequent nv_tx_put call
+	// So we can skip checksum verification in all subsequent nv_tx_put calls
 	if (head & VALID)
 		EEPROM.write(base_addr, 0);
 	return -1;
