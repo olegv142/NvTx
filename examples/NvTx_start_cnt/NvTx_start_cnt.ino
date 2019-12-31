@@ -14,6 +14,8 @@ uint8_t  cnt3;
 //
 NvPlace(cnt1, 0x10); // place at explicitly defined address
 NvAfter(cnt2, cnt1); // place cnt2 right after cnt1
+// Try to place cnt3 to the same location as cnt2 - wont compile
+// NvAfter(cnt3, cnt1);
 
 void setup()
 {

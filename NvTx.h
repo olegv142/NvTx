@@ -57,7 +57,7 @@ void nv_tx_put(
 #define NvPlace(var, addr) enum {var##_eeprom_addr_ = addr}; NvAssertFit(var)
 
 // Assign the address of 'var's storage next to the 'prev's storage location
-#define NvAfter(var, prev) enum {var##_eeprom_addr_ = NvNextAddr(prev)}; NvAssertFit(var)
+#define NvAfter(var, prev) enum {var##_eeprom_addr_ = NvNextAddr(prev), prev##_eeprom_has_next_ = 1}; NvAssertFit(var)
 
 // Get/put variable using the previously declared address
 #define NvTxGet(var) NvTxGetAt(var, NvAddr(var))
