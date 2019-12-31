@@ -1,5 +1,7 @@
 #pragma once
 
+#include "StaticAssert.h"
+
 /*
  Transactional non-volatile storage uses EEPROM for reliably storing
  client's data. It provides the following useful properties:
@@ -37,16 +39,25 @@ void nv_tx_put(
 #define NvTxSize(var) (2 * (4 + sizeof(var)))
 
 //
-// The following set of macro provide the means for automatically assigning addresses to storage locations
+// The following set of macro provides the means for automatically assigning addresses
+// to storage locations at compile time
 //
+
+// We are using separate enum to declare each var storage location
+#define NvAddr(var) var##_eeprom_addr_
+
+// The next free EEPROM address after var's storage location
+#define NvNextAddr(var) (NvAddr(var) + NvTxSize(var))
+
+// Assert the var storage location does fit onto the EEPROM
+#define NvAssertFit(var) STATIC_ASSERT2(NvNextAddr(var) <= E2END + 1, var##_fit_EEPROM)
 
 // Declare variable's storage address explicitly.
 // Typically used for declaring first address of the sequence of storage locations.
-#define NvPlace(var, addr) enum {var##_addr = addr}
-// Assign the address to 'var's storage next to the 'prev's storage location
-#define NvAfter(var, prev) enum {var##_addr = prev##_addr + NvTxSize(prev)}
-// Get the address assigned to the variable's storage location
-#define NvAddr(var) var##_addr
+#define NvPlace(var, addr) enum {var##_eeprom_addr_ = addr}; NvAssertFit(var)
+
+// Assign the address of 'var's storage next to the 'prev's storage location
+#define NvAfter(var, prev) enum {var##_eeprom_addr_ = NvNextAddr(prev)}; NvAssertFit(var)
 
 // Get/put variable using the previously declared address
 #define NvTxGet(var) NvTxGetAt(var, NvAddr(var))
