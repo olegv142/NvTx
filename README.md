@@ -8,7 +8,7 @@ client's data. It provides the following useful properties:
  - the data update will succeed either entirely or not at all, in the latter
    case old data will be read
  - the data is bound to the semantic tag (the string) provided by the client so
-   the data originally bound to the different tag will not be written to avoid
+   the data originally bound to the different tag will not be read to avoid
    erroneous interpretation of the semantically different data
  
 To provide the above guarantees the data is saved in 2 copies in 2 adjacent
