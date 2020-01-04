@@ -44,6 +44,7 @@ static int8_t nv_tx_validate_cell(
 	EEPROM.get(addr, head);
 	if ((crc | VALID | EPOCH) != (head | EPOCH))
 		goto invalid;
+	crc = head;
 	for (addr += 2; size; --size, ++addr) {
 		uint8_t b = EEPROM.read(addr);
 		crc = crc16_up_(crc, b);
@@ -84,8 +85,9 @@ static inline void nv_tx_write_cell(
 	uint16_t crc = crc16_str(tag);
 	// Make header byte with valid bit set and proper epoch bit
 	// Other header bits are equal to tag checksum bits
-	uint16_t head = (crc & ~(uint16_t)EPOCH) | epoch | VALID;
-	EEPROM.put(addr, head);
+	crc &= ~(uint16_t)EPOCH;
+	crc |= epoch | VALID;
+	EEPROM.put(addr, crc);
 	uint8_t const* ptr = val;
 	for (addr += 2; size; --size, ++addr, ++ptr) {
 		uint8_t b = *ptr;
