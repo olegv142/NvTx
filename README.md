@@ -16,6 +16,8 @@ storage 'cells'.
 
 ![NvTx cell format](https://github.com/olegv142/NvTx/blob/master/doc/NvTx.jpg)
 
+![NvTx cell epochs](https://github.com/olegv142/NvTx/blob/master/doc/NvTxEpochs.jpg)
+
 
 ## Author
 
