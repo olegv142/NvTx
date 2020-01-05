@@ -20,6 +20,8 @@ The cells are written in round robin manner with the epoch number is updated eve
 
 ![NvTx cell epochs](https://github.com/olegv142/NvTx/blob/master/doc/NvTxEpochs.jpg)
 
+The nv_tx_get call not only choose the latest value to read but also clear the valid bit in case the ID or checksum mismatch. So all subsequent nv_tx_put calls may just read the first byte of the cell to find out which cell should by written.
+
 ## Author
 
 Oleg Volkov (olegv142@gmail.com)
