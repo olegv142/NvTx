@@ -14,7 +14,7 @@ client's data. It provides the following useful properties:
 To provide the above guarantees the data is saved in 2 copies in 2 adjacent
 storage 'cells'.
 
-![NvTx cell format](https://github.com/olegv142/NvTx/blob/master/doc/NvTx.svg)
+![NvTx cell format](https://github.com/olegv142/NvTx/blob/master/doc/NvTx.gif)
 
 
 ## Author
