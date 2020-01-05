@@ -7,13 +7,15 @@ client's data. It provides the following useful properties:
  - client will not read the data corrupted for any reason
  - the data update will succeed either entirely or not at all, in the latter
    case old data will be read
- - the data is bound to the semantic tag (the string) provided by the client so
-   the data originally bound to the different tag will not be read to avoid
-   erroneous interpretation of the semantically different data
+ - the data is bound to the string tag and numerical instance id provided by the
+   client so the data originally bound to the different tag or having different instance id will not
+   be read to avoid erroneous interpretation of the semantically different data
  
 To provide the above guarantees the data is saved in 2 copies in 2 adjacent
-storage 'cells'. Each copy is protected by 2 checksums calculated based on the
-semantic tag and the content of the data.
+storage 'cells'.
+
+![NvTx cell format](https://github.com/olegv142/NvTx/blob/master/doc/NvTx.svg)
+
 
 ## Author
 
