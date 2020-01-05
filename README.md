@@ -12,12 +12,13 @@ client's data. It provides the following useful properties:
    be read to avoid erroneous interpretation of the semantically different data
  
 To provide the above guarantees the data is saved in 2 copies in 2 adjacent
-storage 'cells'.
+storage 'cells'. The first 2 bytes of the cell contains the value ID calculated as CRC16 of the size and tag with instance ID as initial value. The high order bit of the first ID byte serves as 'valid' bit and always set to 1 on writing new value. The low order bit of the first ID byte serves as 1bit 'epoch' number. So the are 14 bits left for value ID. The last 2 bytes of the cell contains the value checksum with value ID used as initial CRC value.
 
 ![NvTx cell format](https://github.com/olegv142/NvTx/blob/master/doc/NvTx.jpg)
 
-![NvTx cell epochs](https://github.com/olegv142/NvTx/blob/master/doc/NvTxEpochs.jpg)
+The cells are written in round robin manner with the epoch number is updated every time we start writimng the first cell.
 
+![NvTx cell epochs](https://github.com/olegv142/NvTx/blob/master/doc/NvTxEpochs.jpg)
 
 ## Author
 
