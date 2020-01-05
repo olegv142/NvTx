@@ -5,6 +5,10 @@
 // Transactional data storage usage example
 //
 
+// Changing the instance id invalidates all saved values.
+// You can change it for ex. on updating to new version incompatible with old stored data.
+#define MY_INST_ID 0x123
+
 unsigned cnt1;
 uint8_t  cnt2;
 uint8_t  cnt3;
@@ -12,7 +16,7 @@ uint8_t  cnt3;
 // Assign addresses to storage locations
 // where cnt1 and cnt2 will be permanently stored
 //
-NvPlace(cnt1, 0x10); // place at explicitly defined address
+NvPlace(cnt1, 0x10, MY_INST_ID); // place at explicitly defined address
 NvAfter(cnt2, cnt1); // place cnt2 right after cnt1
 // Try to place cnt3 to the same location as cnt2 - wont compile
 // NvAfter(cnt3, cnt1);
