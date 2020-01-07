@@ -9,9 +9,10 @@
  - client will not read the data corrupted for any reason
  - the data update will succeed either entirely or not at all, in the latter
    case old data will be read
- - the data is bound to the semantic tag (the string) provided by the client so
-   the data originally bound to the different tag will not be read to avoid
-   erroneous interpretation of the semantically different data
+ - the data is bound to the string tag and numerical instance id provided by
+   the client so the data originally bound to the different tag or having different
+   instance id will not be read to avoid erroneous interpretation of the semantically 
+   different data
 */
 
 // Read the stored value. Returns true if the value was successfully read. This function should always be called
