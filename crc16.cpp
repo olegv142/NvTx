@@ -13,7 +13,7 @@ uint16_t crc16_up_(uint16_t crc, uint8_t up)
 
 uint16_t crc16_up(uint16_t crc, const void* data, unsigned len)
 {
-	const uint8_t* ptr = data;
+	const uint8_t* ptr = (const uint8_t*)data;
 	for (; len; --len, ++ptr)
 		crc = crc16_up_(crc, *ptr);
 	return crc;

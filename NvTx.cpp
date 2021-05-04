@@ -32,7 +32,7 @@
 // Write data to the cell given its base address
 static inline void nv_tx_write_cell(
 		uint16_t id,
-		void* val,
+		const void* val,
 		unsigned size,
 		unsigned addr,
 		uint8_t epoch
@@ -45,7 +45,7 @@ static inline void nv_tx_write_cell(
 	EEPROM.put(addr, id);
 	// Use header byte as CRC initial value
 	uint16_t crc = id;
-	uint8_t const* ptr = val;
+	uint8_t const* ptr = (uint8_t const*)val;
 	for (addr += 2; size; --size, ++addr, ++ptr) {
 		uint8_t b = *ptr;
 		EEPROM.update(addr, b);
@@ -65,12 +65,12 @@ static int8_t nv_tx_validate_cell(
 		unsigned base_addr // base address of the cell
 	)
 {
-	uint16_t head, tail;
+	uint16_t head, tail, crc;
 	unsigned addr = base_addr;
 	EEPROM.get(addr, head);
 	if ((id | VALID | EPOCH) != (head | EPOCH))
 		goto invalid;
-	uint16_t crc = head;
+	crc = head;
 	for (addr += 2; size; --size, ++addr) {
 		uint8_t b = EEPROM.read(addr);
 		crc = crc16_up_(crc, b);
@@ -104,7 +104,7 @@ static inline void nv_tx_read_cell(
 		unsigned addr
 	)
 {
-	uint8_t* ptr = val;
+	uint8_t* ptr = (uint8_t*)val;
 	for (addr += 2; size; --size, ++addr, ++ptr)
 		*ptr = EEPROM.read(addr);
 }
