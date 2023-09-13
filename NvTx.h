@@ -13,6 +13,9 @@
    the client so the data originally bound to the different tag or having different
    instance id will not be read to avoid erroneous interpretation of the semantically 
    different data
+
+We use either variable name as the string tag or separate tag provided by the caller.
+So we have separate set of macro for the second case.
 */
 
 // Read the stored value. Returns true if the value was successfully read. This function should always be called
@@ -34,13 +37,9 @@ void nv_tx_put(
 		unsigned addr    // the EEPROM base address where the value will be stored
 	);
 
-// The following helper macro get variable name as the parameter. The only other parameter required is EEPROM base address.
-#define NvTxGetAt(var, addr) nv_tx_get(#var, 0, &var, sizeof(var), addr)
-#define NvTxPutAt(var, addr) nv_tx_put(#var, 0, &var, sizeof(var), addr)
-
-// Same as above but with instance id parameter
-#define NvTxGetAt_(var, addr, inst_id) nv_tx_get(#var, inst_id, &var, sizeof(var), addr)
-#define NvTxPutAt_(var, addr, inst_id) nv_tx_put(#var, inst_id, &var, sizeof(var), addr)
+// Read/write variable from/to the particular storage location
+#define NvTxTagGetAt_(tag, var, addr, inst_id) nv_tx_get(#tag, inst_id, &var, sizeof(var), addr)
+#define NvTxTagPutAt_(tag, var, addr, inst_id) nv_tx_put(#tag, inst_id, &var, sizeof(var), addr)
 
 // Calculates the amount of storage is takes on EEPROM to save the value of the variable
 #define NvTxSize(var) (2 * (4 + sizeof(var)))
@@ -51,26 +50,33 @@ void nv_tx_put(
 //
 
 // We are using separate enum to declare each var storage location
-#define NvAddr(var) var##_eeprom_addr_
+#define NvAddr(tag) tag##_eeprom_addr_
 
 // The next free EEPROM address after var's storage location
-#define NvNextAddr(var) (NvAddr(var) + NvTxSize(var))
+#define NvNextTagAddr(tag, var) (NvAddr(tag) + NvTxSize(var))
+#define NvNextAddr(var) NvNextTagAddr(var, var)
 
 // Assert the var storage location does fit onto the EEPROM
-#define NvAssertFit(var) STATIC_ASSERT2(NvNextAddr(var) <= E2END + 1, var##_fit_EEPROM)
+#define NvAssertFit(tag) STATIC_ASSERT2(tag##_eeprom_next_addr_ <= E2END + 1, tag##_fit_EEPROM)
 
 // Declare variable's storage address explicitly.
 // Typically used for declaring first address of the sequence of storage locations.
-#define NvPlace(var, addr, inst_id) enum {var##_eeprom_addr_ = addr, var##_eeprom_iid_ = inst_id}; NvAssertFit(var)
+#define NvPlaceTag(tag, var, addr, inst_id) enum {tag##_eeprom_addr_ = addr, tag##_eeprom_next_addr_ = NvNextTagAddr(tag, var), tag##_eeprom_iid_ = inst_id}; NvAssertFit(tag)
+#define NvPlace(var, addr, inst_id) NvPlaceTag(var, var, addr, inst_id)
 
 // Assign the address of 'var's storage next to the 'prev's storage location
-#define NvAfter(var, prev) enum {\
-		var##_eeprom_addr_ = NvNextAddr(prev), var##_eeprom_iid_ = prev##_eeprom_iid_, prev##_eeprom_has_next_ = 1\
-	}; NvAssertFit(var)
+#define NvTagAfter(tag, var, prev_tag) enum {\
+		tag##_eeprom_addr_ = prev_tag##_eeprom_next_addr_, tag##_eeprom_iid_ = prev_tag##_eeprom_iid_,\
+		tag##_eeprom_next_addr_ = NvNextTagAddr(tag, var),\
+		prev_tag##_eeprom_has_next_ = 1\
+	}; NvAssertFit(tag)
+#define NvAfter(var, prev) NvTagAfter(var, var, prev)
 
 // Get var's instance id
-#define NvInstId(var) var##_eeprom_iid_
+#define NvInstId(tag) tag##_eeprom_iid_
 
 // Get/put variable using the previously declared address
-#define NvTxGet(var) NvTxGetAt_(var, NvAddr(var), NvInstId(var))
-#define NvTxPut(var) NvTxPutAt_(var, NvAddr(var), NvInstId(var))
+#define NvTxTagGet(tag, var) NvTxTagGetAt_(tag, var, NvAddr(tag), NvInstId(tag))
+#define NvTxTagPut(tag, var) NvTxTagPutAt_(tag, var, NvAddr(tag), NvInstId(tag))
+#define NvTxGet(var) NvTxTagGet(var, var)
+#define NvTxPut(var) NvTxTagPut(var, var)
