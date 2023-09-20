@@ -16,7 +16,7 @@ storage 'cells'. The first 2 bytes of the cell contains the value ID calculated 
 
 ![NvTx cell format](https://github.com/olegv142/NvTx/blob/master/doc/NvTx.jpg)
 
-The cells are written in round robin manner with the epoch number updated every time we start writimng the first cell.
+The cells are written in round robin manner with the epoch number updated every time we start writing the first cell.
 
 ![NvTx cell epochs](https://github.com/olegv142/NvTx/blob/master/doc/NvTxEpochs.jpg)
 
