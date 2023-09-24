@@ -37,6 +37,12 @@ void nv_tx_put(
 		unsigned addr    // the EEPROM base address where the value will be stored
 	);
 
+// Erase stored value so that subsequent nv_tx_get will return false.
+void nv_tx_erase(
+		unsigned size,   // the value size in bytes
+		unsigned addr    // the EEPROM base address where the value will be stored
+	);
+
 // Read/write variable from/to the particular storage location
 #define NvTxTagGetAt_(tag, var, addr, inst_id) nv_tx_get(#tag, inst_id, &var, sizeof(var), addr)
 #define NvTxTagPutAt_(tag, var, addr, inst_id) nv_tx_put(#tag, inst_id, &var, sizeof(var), addr)
@@ -80,3 +86,7 @@ void nv_tx_put(
 #define NvTxTagPut(tag, var) NvTxTagPutAt_(tag, var, NvAddr(tag), NvInstId(tag))
 #define NvTxGet(var) NvTxTagGet(var, var)
 #define NvTxPut(var) NvTxTagPut(var, var)
+
+// Erase storage location so subsequent calls to NvTxTagGet / NvTxGet will return false
+#define NvTxTagErase(tag, var) nv_tx_erase(sizeof(var), NvAddr(tag))
+#define NvTxErase(var) NvTxTagErase(var, var)

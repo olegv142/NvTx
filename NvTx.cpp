@@ -119,9 +119,9 @@ bool nv_tx_get(
 		unsigned addr    // the EEPROM base address where the value is stored
 	)
 {
-	uint16_t id = nv_tx_value_id(tag, inst_id, size);
-	unsigned addr2 = addr + CELL_SIZE(size);
-	int8_t valid[2] = {nv_tx_validate_cell(id, size, addr), nv_tx_validate_cell(id, size, addr2)};
+	uint16_t const id = nv_tx_value_id(tag, inst_id, size);
+	unsigned const addr2 = addr + CELL_SIZE(size);
+	int8_t const valid[2] = {nv_tx_validate_cell(id, size, addr), nv_tx_validate_cell(id, size, addr2)};
 	if (valid[0] >= 0 && valid[1] >= 0) {
 		// Both cells have valid data so choose latest based on the epoch bit
 		nv_tx_read_cell(val, size, valid[0] != valid[1] ? addr : addr2);
@@ -148,10 +148,10 @@ void nv_tx_put(
 		unsigned addr    // the EEPROM base address where the value will be stored
 	)
 {
-	uint16_t id = nv_tx_value_id(tag, inst_id, size);
-	unsigned addr2 = addr + CELL_SIZE(size);
+	uint16_t const id = nv_tx_value_id(tag, inst_id, size);
+	unsigned const addr2 = addr + CELL_SIZE(size);
 	// Read header bytes from the cells
-	uint8_t hdr[2] = {EEPROM.read(addr), EEPROM.read(addr2)};
+	uint8_t const hdr[2] = {EEPROM.read(addr), EEPROM.read(addr2)};
 	// Write to the first not valid cell using epoch calculated based on the other cell's epoch
 	if (!(hdr[0] & VALID))
 		nv_tx_write_cell(id, val, size, addr, ~hdr[1] & EPOCH);
@@ -162,4 +162,30 @@ void nv_tx_put(
 		nv_tx_write_cell(id, val, size, addr, ~hdr[1] & EPOCH);
 	else
 		nv_tx_write_cell(id, val, size, addr2, hdr[0] & EPOCH);
+}
+
+// Erase stored value so that subsequent nv_tx_get will return false.
+void nv_tx_erase(
+		unsigned size,   // the value size in bytes
+		unsigned addr    // the EEPROM base address where the value will be stored
+	)
+{
+	unsigned const addr2 = addr + CELL_SIZE(size);
+	// Read header bytes from the cells
+	uint8_t const hdr[2] = {EEPROM.read(addr), EEPROM.read(addr2)};
+	if (!(hdr[0] & VALID) && !(hdr[1] & VALID))
+		return;
+	// Write 0 byte to the header to invalidate it 
+	if (!(hdr[0] & VALID))
+		EEPROM.write(addr2, 0);
+	else if (!(hdr[1] & VALID))
+		EEPROM.write(addr, 0);
+	// If both cells have valid data erase older value first
+	else if ((hdr[0] & EPOCH) == (hdr[1] & EPOCH)) {
+		EEPROM.write(addr, 0);
+		EEPROM.write(addr2, 0);		
+	} else {
+		EEPROM.write(addr2, 0);		
+		EEPROM.write(addr, 0);
+	}
 }
